@@ -1,0 +1,36 @@
+.load-more-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 30px;
+  margin-bottom: 30px;
+}
+
+.load-more-button {
+  display: none;
+  padding: 10px 20px;
+  background-color: #4e75ff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-bottom: 20px;
+}
+
+.load-more-button:hover {
+  background-color: #6c8cff;
+}
+
+.load-more-loader {
+  margin-top: 15px;
+}
+
+.end-message {
+  display: none;
+  text-align: center;
+  color: #333;
+  font-size: 16px;
+  margin-top: 20px;
+}

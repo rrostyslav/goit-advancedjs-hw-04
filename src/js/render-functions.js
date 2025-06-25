@@ -1,4 +1,4 @@
-export function renderGallery(images, galleryElement) {
+export function renderGallery(images, galleryElement, append = false) {
   const galleryMarkup = images
     .map(image => {
       const {
@@ -39,7 +39,11 @@ export function renderGallery(images, galleryElement) {
     })
     .join('');
 
-  galleryElement.innerHTML = galleryMarkup;
+  if (append) {
+    galleryElement.insertAdjacentHTML('beforeend', galleryMarkup);
+  } else {
+    galleryElement.innerHTML = galleryMarkup;
+  }
 }
 
 export function showLoader(loaderElement) {
@@ -52,4 +56,31 @@ export function hideLoader(loaderElement) {
 
 export function clearGallery(galleryElement) {
   galleryElement.innerHTML = '';
+}
+
+export function showLoadMoreButton(buttonElement) {
+  buttonElement.style.display = 'block';
+}
+
+export function hideLoadMoreButton(buttonElement) {
+  buttonElement.style.display = 'none';
+}
+
+export function showEndMessage(messageElement) {
+  messageElement.style.display = 'block';
+}
+
+export function hideEndMessage(messageElement) {
+  messageElement.style.display = 'none';
+}
+
+export function smoothScroll() {
+  const cardHeight = document.querySelector('.gallery-item')?.getBoundingClientRect().height || 0;
+
+  if (cardHeight) {
+    window.scrollBy({
+      top: cardHeight * 2,
+      behavior: 'smooth'
+    });
+  }
 }

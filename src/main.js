@@ -4,6 +4,11 @@ import {
   showLoader,
   hideLoader,
   clearGallery,
+  showLoadMoreButton,
+  hideLoadMoreButton,
+  showEndMessage,
+  hideEndMessage,
+  smoothScroll
 } from './js/render-functions.js';
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
@@ -14,9 +19,20 @@ document.addEventListener('DOMContentLoaded', () => {
   const form = document.querySelector('.form');
   const gallery = document.querySelector('.gallery');
   const loader = document.querySelector('.loader');
+  const loadMoreBtn = document.querySelector('.load-more-button');
+  const loadMoreLoader = document.querySelector('.load-more-loader');
+  const endMessage = document.querySelector('.end-message');
   let lightbox;
+  let currentPage = 1;
+  let currentQuery = '';
+  let totalHits = 0;
 
-  // Initialize SimpleLightbox
+
+  hideLoadMoreButton(loadMoreBtn);
+  hideEndMessage(endMessage);
+  hideLoader(loadMoreLoader);
+
+
   function initLightbox() {
     if (lightbox) {
       lightbox.refresh();
@@ -28,7 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Handle form submission
+
   form.addEventListener('submit', async event => {
     event.preventDefault();
     const searchQuery = event.target.elements.searchQuery.value.trim();
@@ -42,11 +58,17 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
+
+    currentPage = 1;
+    currentQuery = searchQuery;
     clearGallery(gallery);
+    hideLoadMoreButton(loadMoreBtn);
+    hideEndMessage(endMessage);
     showLoader(loader);
 
     try {
-      const data = await fetchImages(searchQuery);
+      const data = await fetchImages(searchQuery, currentPage);
+      totalHits = data.totalHits;
 
       hideLoader(loader);
 
@@ -62,8 +84,48 @@ document.addEventListener('DOMContentLoaded', () => {
 
       renderGallery(data.hits, gallery);
       initLightbox();
+
+
+      if (data.hits.length < totalHits) {
+        showLoadMoreButton(loadMoreBtn);
+      } else {
+        showEndMessage(endMessage);
+      }
+
     } catch (error) {
       hideLoader(loader);
+      iziToast.error({
+        title: 'Error',
+        message: `An error occurred: ${error.message}`,
+        position: 'topRight',
+      });
+    }
+  });
+
+
+  loadMoreBtn.addEventListener('click', async () => {
+    hideLoadMoreButton(loadMoreBtn);
+    showLoader(loadMoreLoader);
+    currentPage += 1;
+
+    try {
+      const data = await fetchImages(currentQuery, currentPage);
+      hideLoader(loadMoreLoader);
+
+      renderGallery(data.hits, gallery, true);
+      initLightbox();
+      smoothScroll();
+
+
+      const loadedImagesCount = currentPage * 15;
+      if (loadedImagesCount >= totalHits) {
+        hideLoadMoreButton(loadMoreBtn);
+        showEndMessage(endMessage);
+      } else {
+        showLoadMoreButton(loadMoreBtn);
+      }
+    } catch (error) {
+      hideLoader(loadMoreLoader);
       iziToast.error({
         title: 'Error',
         message: `An error occurred: ${error.message}`,
